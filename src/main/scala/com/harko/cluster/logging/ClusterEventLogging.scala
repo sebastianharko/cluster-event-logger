@@ -8,6 +8,7 @@ import akka.http.scaladsl.model.sse.ServerSentEvent
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.management.http.{ManagementRouteProvider, ManagementRouteProviderSettings}
+import akka.persistence.cassandra.query.scaladsl.CassandraReadJournal
 import akka.persistence.{PersistentActor, Recovery}
 import akka.persistence.query.PersistenceQuery
 import akka.persistence.query.scaladsl.EventsByPersistenceIdQuery
@@ -25,8 +26,6 @@ case class ClusterEvent[T <: ClusterDomainEvent](self: UniqueAddress,
 class ClusterEventLogger extends PersistentActor with ActorLogging {
 
   val cluster = Cluster(context.system)
-
-  override def journalPluginId: String = "cluster-event-logging.journal"
 
   override def recovery: Recovery = Recovery.none
 
@@ -73,7 +72,7 @@ class ClusterEventLogging(system: ExtendedActorSystem) extends Extension with Ma
   system.actorOf(Props(new ClusterEventLogger), "cluster-event-logger")
 
   val queries = PersistenceQuery(system)
-    .readJournalFor[EventsByPersistenceIdQuery](system.settings.config.getString("cluster-event-logging.query-journal"))
+    .readJournalFor[EventsByPersistenceIdQuery](CassandraReadJournal.Identifier)
 
   import akka.http.scaladsl.marshalling.sse.EventStreamMarshalling._
   override def routes(settings: ManagementRouteProviderSettings): Route =

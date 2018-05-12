@@ -5,15 +5,15 @@ This is an Akka extension that logs cluster events to a journal (via Akka Persis
 a route to [Akka Management](https://developer.lightbend.com/docs/akka-management/current/). The route simply returns
 the event stream.
 
-To install, include this jar in your project and in your ```application.conf```, configure the persistence settings:
+Requirements
+============
 
-```
+Akka Persistence Cassandra
 
-cluster-event-logging.journal = ${cassandra-journal}
+Installation
+============
 
-cluster-event-logging.query-journal = "cassandra-query-journal"
-
-```
+To install, include this jar in your project.
 
 Use:
 

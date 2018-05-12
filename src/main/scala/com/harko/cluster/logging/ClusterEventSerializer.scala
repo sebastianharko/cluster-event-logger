@@ -4,6 +4,7 @@ import java.nio.charset.Charset
 
 import akka.actor.ExtendedActorSystem
 import akka.event.Logging
+import akka.persistence.journal.{Tagged, WriteEventAdapter}
 import akka.serialization.Serializer
 import org.json4s.jackson.JsonMethods._
 import org.json4s.{DefaultFormats, _}
@@ -18,9 +19,6 @@ class ClusterEventSerializer(actorSystem: ExtendedActorSystem) extends Serialize
 
   implicit val formats = DefaultFormats
 
-  // Completely unique value to identify this implementation of Serializer, used to optimize network traffic.
-  // Values from 0 to 16 are reserved for Akka internal usage.
-  // Make sure this does not conflict with any other kind of serializer or you will have problems
   override def identifier: Int = 800600015
 
   override def includeManifest = false
@@ -38,4 +36,12 @@ class ClusterEventSerializer(actorSystem: ExtendedActorSystem) extends Serialize
     dat
   }
 
+}
+
+
+class ClusterEventTagging(actorSystem: ExtendedActorSystem) extends WriteEventAdapter {
+  override def toJournal(event: Any): Any = event match {
+    case e => Tagged(e, Set("ClusterEvent"))
+  }
+  override def manifest(event: Any): String = ""
 }

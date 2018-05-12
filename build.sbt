@@ -21,3 +21,5 @@ libraryDependencies += "com.lightbend.akka.management" %% "akka-management" % "0
 libraryDependencies += "com.typesafe.akka" %% "akka-persistence-query" % "2.5.12"
 
 libraryDependencies += "org.json4s" %% "json4s-jackson" % "3.5.3"
+
+libraryDependencies += "com.typesafe.akka" %% "akka-persistence-cassandra" % "0.84"
