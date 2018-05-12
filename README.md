@@ -2,10 +2,10 @@ Cluster Event Logging
 =====================
 
 This is an Akka extension that logs cluster events to a journal (via Akka Persistence). This extension contributes
-a route to [Akka Management] (https://developer.lightbend.com/docs/akka-management/current/). The route simply returns
+a route to [Akka Management](https://developer.lightbend.com/docs/akka-management/current/). The route simply returns
 the event stream.
 
-To install, include this jar in your project and in your ```application.conf``` configure the persistence settings:
+To install, include this jar in your project and in your ```application.conf```, configure the persistence settings:
 
 ```
 
