@@ -1,3 +1,14 @@
+Intro
+=====
+
+There's two things here: a cluster event logging extension and a visualizer. The visualizer is a work-in-progress and not yet
+functional.
+
+Warning
+=======
+
+All this stuff is experimental. Do not use in production.
+
 Cluster Event Logging
 =====================
 
@@ -6,12 +17,12 @@ a route to [Akka Management](https://developer.lightbend.com/docs/akka-managemen
 the event stream.
 
 Requirements
-============
+------------
 
 Akka Persistence Cassandra
 
 Installation
-============
+------------
 
 To install, include this jar in your project.
 
@@ -30,7 +41,7 @@ object Main extends App {
 ```
 
 Get event stream
-================
+----------------
 
 ```
 $ curl -XGET http://127.0.0.1:19999/events
@@ -45,10 +56,9 @@ data:{"self":{"address":{"protocol":"akka.tcp","system":"minimal","host":"127.0.
 
 ```
 
+Visualizer
+==========
 
-Warning
-=======
-
-Experimental. Do not use in production.
-
-
+The visualizer is a small scala.js program that displays the state of the cluster in a visual grid where led (i, j) highlights
+the state of node j as seen by node i. This representation is inspired by the Eric Loots' [Pi-Akka-Cluster](https://github.com/lightbend/Pi-Akka-Cluster).
+This visualizer is not yet functional.
