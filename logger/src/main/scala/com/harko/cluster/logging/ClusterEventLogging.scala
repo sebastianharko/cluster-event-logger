@@ -10,18 +10,19 @@ import akka.http.scaladsl.server.Route
 import akka.management.http.{ManagementRouteProvider, ManagementRouteProviderSettings}
 import akka.persistence.cassandra.query.scaladsl.CassandraReadJournal
 import akka.persistence.{PersistentActor, Recovery}
-import akka.persistence.query.PersistenceQuery
-import akka.persistence.query.scaladsl.EventsByPersistenceIdQuery
+import akka.persistence.query.{Offset, PersistenceQuery}
+import akka.persistence.query.scaladsl.{EventsByPersistenceIdQuery, EventsByTagQuery}
 import akka.stream.ActorMaterializer
 import org.json4s.JsonAST.JValue
 import org.json4s.jackson.JsonMethods._
+import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 
 import scala.concurrent.duration._
 
 case class ClusterEvent[T <: ClusterDomainEvent](self: UniqueAddress,
-  timestamp: Long,
-  eventType: String,
-  event: T)
+                                                 timestamp: Long,
+                                                 eventType: String,
+                                                 event: T)
 
 class ClusterEventLogger extends PersistentActor with ActorLogging {
 
@@ -72,19 +73,31 @@ class ClusterEventLogging(system: ExtendedActorSystem) extends Extension with Ma
   system.actorOf(Props(new ClusterEventLogger), "cluster-event-logger")
 
   val queries = PersistenceQuery(system)
-    .readJournalFor[EventsByPersistenceIdQuery](CassandraReadJournal.Identifier)
+    .readJournalFor[EventsByPersistenceIdQuery with EventsByTagQuery](CassandraReadJournal.Identifier)
 
   import akka.http.scaladsl.marshalling.sse.EventStreamMarshalling._
+
   override def routes(settings: ManagementRouteProviderSettings): Route =
-  path("events") {
-    get {
-      complete {
-        queries.eventsByPersistenceId(cluster.selfAddress.toString, 0, Long.MaxValue)
-          .map(eventEnvelope => ServerSentEvent(compact(render(eventEnvelope.event.asInstanceOf[JValue]))))
-          .keepAlive(1.second, () => ServerSentEvent.heartbeat)
+    path("members" / "events") {
+      get {
+        complete {
+          queries.eventsByPersistenceId(cluster.selfAddress.toString, 0, Long.MaxValue)
+            .map(eventEnvelope => ServerSentEvent(compact(render(eventEnvelope.event.asInstanceOf[JValue]))))
+            .keepAlive(1.second, () => ServerSentEvent.heartbeat)
+        }
+      }
+    } ~ cors() {
+      path("cluster" / "events") {
+        get {
+          complete {
+            queries
+              .eventsByTag("ClusterEvent", Offset.noOffset)
+              .map(eventEnvelope =>
+                ServerSentEvent(compact(render(eventEnvelope.event.asInstanceOf[JValue]))))
+          }
+        }
       }
     }
-  }
 
 }
 

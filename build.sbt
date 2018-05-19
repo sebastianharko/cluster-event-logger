@@ -16,6 +16,7 @@ lazy val logger = (project in file("logger"))
       "com.typesafe.akka" %% "akka-cluster" % "2.5.12",
       "com.lightbend.akka.management" %% "akka-management" % "0.12.0",
       "com.typesafe.akka" %% "akka-persistence-query" % "2.5.12",
+      "ch.megard" %% "akka-http-cors" % "0.3.0",
       "org.json4s" %% "json4s-jackson" % "3.5.3",
       "com.typesafe.akka" %% "akka-persistence-cassandra" % "0.84"
     )
